@@ -1,7 +1,12 @@
 const express = require("express")
-const app = express()
 const moongose = require('mongoose')
+const app = express()
+const path = require('path')
+const cors = require('cors')
 const Port = 3333;
+
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
 
 //config
  //mongoose
@@ -10,6 +15,16 @@ const Port = 3333;
      useUnifiedTopology: true,
  })
 
+app.use((req,res,next)=>{
+    req.io = io;
+
+    next()
+})
+
+app.use(cors())
+
+app.use('/files',express.static(path.resolve(__dirname,'..','uploads')))
+
 app.use(require('./config/routes'))
 
-app.listen(Port,()=> console.log(`Servidor rodando na porta: ${Port}`));
+server.listen(Port,()=> console.log(`Servidor rodando na porta: ${Port}`));
